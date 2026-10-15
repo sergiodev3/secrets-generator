@@ -5,8 +5,11 @@ import math
 import re
 import secrets
 import string
+from dataclasses import dataclass
 from enum import StrEnum
+from importlib.metadata import PackageNotFoundError, version
 
+DIST_NAME = "secrets-generator"
 MIN_BYTES = 16
 DEFAULT_BYTES = 32
 
@@ -19,6 +22,25 @@ class SecretFormat(StrEnum):
     BASE64 = "base64"
     HEX = "hex"
     ALNUM = "alnum"
+
+
+@dataclass(frozen=True)
+class Preset:
+    """Ready-made settings for a common kind of secret."""
+
+    label: str
+    name: str
+    num_bytes: int
+    fmt: SecretFormat
+    description: str
+
+
+PRESETS: tuple[Preset, ...] = (
+    Preset("JWT secret (HS256)", "JWT_SECRET", 32, SecretFormat.BASE64URL, "256 bits, base64url"),
+    Preset("JWT secret (HS512)", "JWT_SECRET", 64, SecretFormat.BASE64URL, "512 bits, base64url"),
+    Preset("Session secret", "SESSION_SECRET", 32, SecretFormat.BASE64URL, "256 bits, base64url"),
+    Preset("API key", "API_KEY", 32, SecretFormat.ALNUM, "256 bits, letters and digits"),
+)
 
 
 def generate_secret(num_bytes: int = DEFAULT_BYTES, fmt: SecretFormat = SecretFormat.BASE64URL) -> str:
@@ -40,3 +62,11 @@ def generate_secret(num_bytes: int = DEFAULT_BYTES, fmt: SecretFormat = SecretFo
 
 def is_valid_env_name(name: str) -> bool:
     return _ENV_NAME_PATTERN.fullmatch(name) is not None
+
+
+def package_version() -> str:
+    """Return the installed distribution version, or a placeholder when not installed."""
+    try:
+        return version(DIST_NAME)
+    except PackageNotFoundError:
+        return "0.0.0+unknown"
