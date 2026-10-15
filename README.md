@@ -1,43 +1,43 @@
 # secrets-generator
 
-CLI to generate cryptographically secure secrets (JWT keys, session secrets, API keys) for production apps.
+CLI para generar secretos criptográficamente seguros (claves JWT, secretos de sesión, API keys) para aplicaciones en producción.
 
-Uses Python's `secrets` module (OS CSPRNG). Never `random`.
+Usa el módulo `secrets` de Python (CSPRNG del sistema operativo). Nunca `random`.
 
-## Install
+## Instalación
 
 ```bash
 uv tool install .
 ```
 
-## Usage
+## Uso
 
 ```bash
-# Raw secret (32 bytes = 256 bits, base64url)
+# Secreto sin nombre (32 bytes = 256 bits, base64url)
 secrets-gen
 
-# .env lines
+# Líneas para un archivo .env
 secrets-gen JWT_SECRET SESSION_SECRET
 # JWT_SECRET=Q3x...
 # SESSION_SECRET=9fA...
 
-# Append to an .env file
+# Agregar a un archivo .env
 secrets-gen JWT_SECRET >> .env
 
-# More entropy and a different encoding
+# Más entropía y otra codificación
 secrets-gen JWT_SECRET --bytes 64 --format hex
 ```
 
-### Options
+### Opciones
 
-| Option | Default | Description |
+| Opción | Valor por defecto | Descripción |
 |---|---|---|
-| `--bytes`, `-b` | `32` | Entropy in bytes (minimum 16). 32 bytes = 256 bits, enough for HS256. Use 64 for HS512. |
-| `--format`, `-f` | `base64url` | `base64url`, `base64`, `hex`, or `alnum` |
+| `--bytes`, `-b` | `32` | Entropía en bytes (mínimo 16). 32 bytes = 256 bits, suficiente para HS256. Usa 64 para HS512. |
+| `--format`, `-f` | `base64url` | `base64url`, `base64`, `hex` o `alnum` |
 
-Length is driven by entropy, not by character count: 32 bytes give 64 chars in `hex`, 43 in `base64url`, 43 in `alnum`.
+La longitud depende de la entropía, no de la cantidad de caracteres: 32 bytes generan 64 caracteres en `hex`, 43 en `base64url` y 43 en `alnum`.
 
-## Development
+## Desarrollo
 
 ```bash
 uv sync
