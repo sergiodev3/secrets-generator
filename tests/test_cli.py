@@ -1,10 +1,19 @@
 import re
 
+import pytest
 from typer.testing import CliRunner
 
+from secrets_generator import cli, interactive
 from secrets_generator.cli import app
 
 runner = CliRunner()
+
+
+@pytest.fixture
+def interactive_calls(monkeypatch):
+    calls = []
+    monkeypatch.setattr(interactive, "run", lambda: calls.append("run"))
+    return calls
 
 
 def test_without_names_prints_raw_secret():
@@ -60,3 +69,28 @@ def test_short_version_flag_prints_version():
     result = runner.invoke(app, ["-V"])
     assert result.exit_code == 0
     assert result.stdout.startswith("secrets-gen ")
+
+
+def test_no_args_in_terminal_launches_interactive_mode(monkeypatch, interactive_calls):
+    monkeypatch.setattr(cli, "_is_interactive_terminal", lambda: True)
+    result = runner.invoke(app, [])
+    assert result.exit_code == 0
+    assert interactive_calls == ["run"]
+    assert result.stdout == ""
+
+
+def test_no_args_outside_terminal_prints_raw_secret(monkeypatch, interactive_calls):
+    monkeypatch.setattr(cli, "_is_interactive_terminal", lambda: False)
+    result = runner.invoke(app, [])
+    assert result.exit_code == 0
+    assert interactive_calls == []
+    assert re.fullmatch(r"[A-Za-z0-9_-]{43}\n", result.stdout)
+
+
+@pytest.mark.parametrize("args", [["JWT_SECRET"], ["--bytes", "64"], ["-f", "hex"]])
+def test_explicit_arguments_skip_interactive_mode(monkeypatch, interactive_calls, args):
+    monkeypatch.setattr(cli, "_is_interactive_terminal", lambda: True)
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0
+    assert interactive_calls == []
+    assert result.stdout.strip() != ""

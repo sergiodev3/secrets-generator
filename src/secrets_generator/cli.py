@@ -1,3 +1,4 @@
+import sys
 from typing import Annotated
 
 import typer
@@ -46,8 +47,22 @@ def _print_version(value: bool) -> None:
         raise typer.Exit()
 
 
+def _is_interactive_terminal() -> bool:
+    """True only when a human is at the keyboard (no pipes or redirects)."""
+    return bool(sys.stdin and sys.stdin.isatty() and sys.stdout and sys.stdout.isatty())
+
+
+def _options_left_default(ctx: typer.Context, *params: str) -> bool:
+    for param in params:
+        source = ctx.get_parameter_source(param)
+        if source is not None and source.name != "DEFAULT":
+            return False
+    return True
+
+
 @app.command(epilog=_EPILOG)
 def generate(
+    ctx: typer.Context,
     names: Annotated[
         list[str] | None,
         typer.Argument(
@@ -77,8 +92,16 @@ def generate(
 ) -> None:
     """Generate one secret per [bold]NAME[/bold] (or a single raw secret).
 
+    Run without arguments in a terminal to open the interactive menu.
+
     Secrets come from the OS CSPRNG ([italic]secrets[/italic] module), never [italic]random[/italic].
     """
+    if not names and _options_left_default(ctx, "num_bytes", "fmt") and _is_interactive_terminal():
+        from secrets_generator import interactive  # deferred: keeps scripted calls fast
+
+        interactive.run()
+        return
+
     if not names:
         typer.echo(generate_secret(num_bytes, fmt))
         return

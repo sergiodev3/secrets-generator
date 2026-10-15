@@ -5,6 +5,7 @@ import math
 import re
 import secrets
 import string
+from dataclasses import dataclass
 from enum import StrEnum
 from importlib.metadata import PackageNotFoundError, version
 
@@ -21,6 +22,25 @@ class SecretFormat(StrEnum):
     BASE64 = "base64"
     HEX = "hex"
     ALNUM = "alnum"
+
+
+@dataclass(frozen=True)
+class Preset:
+    """Ready-made settings for a common kind of secret."""
+
+    label: str
+    name: str
+    num_bytes: int
+    fmt: SecretFormat
+    description: str
+
+
+PRESETS: tuple[Preset, ...] = (
+    Preset("JWT secret (HS256)", "JWT_SECRET", 32, SecretFormat.BASE64URL, "256 bits, base64url"),
+    Preset("JWT secret (HS512)", "JWT_SECRET", 64, SecretFormat.BASE64URL, "512 bits, base64url"),
+    Preset("Session secret", "SESSION_SECRET", 32, SecretFormat.BASE64URL, "256 bits, base64url"),
+    Preset("API key", "API_KEY", 32, SecretFormat.ALNUM, "256 bits, letters and digits"),
+)
 
 
 def generate_secret(num_bytes: int = DEFAULT_BYTES, fmt: SecretFormat = SecretFormat.BASE64URL) -> str:
