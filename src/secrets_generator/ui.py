@@ -7,6 +7,7 @@ from rich.text import Text
 
 APP_NAME = "Secrets Generator"
 TAGLINE = "Cryptographically secure secrets for production apps"
+AUTHOR = "sergiodev3"
 
 # Plain ASCII only (legacy Windows consoles) and at most 72 columns wide.
 LOGO = r"""
@@ -33,7 +34,7 @@ HELP_EXAMPLES: tuple[tuple[str, str], ...] = (
 
 
 def render_banner(console: Console, version: str) -> None:
-    """Print the ASCII logo followed by the app name, version and tagline."""
+    """Print the ASCII logo followed by the app name, version, author and tagline."""
     console.print()
     for index, line in enumerate(LOGO.splitlines()):
         style = _LOGO_STYLES[min(index, len(_LOGO_STYLES) - 1)]
@@ -41,6 +42,8 @@ def render_banner(console: Console, version: str) -> None:
     console.print()
     title = Text(APP_NAME, style="bold")
     title.append(f"  v{version}", style="dim")
+    title.append("  by ", style="dim")
+    title.append(AUTHOR, style="bold magenta")
     console.print(title)
     console.print(Text(TAGLINE, style="italic cyan"))
     console.print()

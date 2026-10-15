@@ -86,6 +86,11 @@ def test_banner_shows_name_version_and_tagline(console):
     assert "Cryptographically secure secrets for production apps" in text
 
 
+def test_banner_shows_author(console):
+    ui.render_banner(console, version="9.9.9")
+    assert "by sergiodev3" in console.file.getvalue()
+
+
 def test_secret_lines_are_never_wrapped():
     narrow = Console(file=io.StringIO(), width=40, color_system=None)
     line = "JWT_SECRET=" + "[ab]" * 30
