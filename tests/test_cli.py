@@ -35,3 +35,28 @@ def test_rejects_invalid_env_name():
 def test_rejects_too_few_bytes():
     result = runner.invoke(app, ["--bytes", "8"])
     assert result.exit_code != 0
+
+
+def test_short_h_flag_shows_help():
+    result = runner.invoke(app, ["-h"])
+    assert result.exit_code == 0
+    assert "Usage" in result.stdout
+    assert "--bytes" in result.stdout
+
+
+def test_long_help_flag_shows_examples():
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    assert "secrets-gen JWT_SECRET" in result.stdout
+
+
+def test_version_flag_prints_version():
+    result = runner.invoke(app, ["--version"])
+    assert result.exit_code == 0
+    assert re.fullmatch(r"secrets-gen \d+\.\d+\.\d+\S*\n", result.stdout)
+
+
+def test_short_version_flag_prints_version():
+    result = runner.invoke(app, ["-V"])
+    assert result.exit_code == 0
+    assert result.stdout.startswith("secrets-gen ")

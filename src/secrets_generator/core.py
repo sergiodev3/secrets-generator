@@ -6,7 +6,9 @@ import re
 import secrets
 import string
 from enum import StrEnum
+from importlib.metadata import PackageNotFoundError, version
 
+DIST_NAME = "secrets-generator"
 MIN_BYTES = 16
 DEFAULT_BYTES = 32
 
@@ -40,3 +42,11 @@ def generate_secret(num_bytes: int = DEFAULT_BYTES, fmt: SecretFormat = SecretFo
 
 def is_valid_env_name(name: str) -> bool:
     return _ENV_NAME_PATTERN.fullmatch(name) is not None
+
+
+def package_version() -> str:
+    """Return the installed distribution version, or a placeholder when not installed."""
+    try:
+        return version(DIST_NAME)
+    except PackageNotFoundError:
+        return "0.0.0+unknown"
