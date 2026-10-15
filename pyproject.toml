@@ -1,6 +1,6 @@
 [project]
 name = "secrets-generator"
-version = "0.1.0"
+version = "0.2.0"
 description = "CLI to generate cryptographically secure secrets for production apps"
 readme = "README.md"
 authors = [{ name = "sergiodev3" }]
